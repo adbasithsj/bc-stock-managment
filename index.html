@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC STOCK MANAGEMENT</title>
+    <style>
+        :root {
+            --primary: #e74c3c; /* Racing Red */
+            --secondary: #3498db; /* Update Blue */
+            --bg: #1a1a1a;
+            --card: #2d2d2d;
+            --text: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+
+        .admin-box {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #444;
+        }
+
+        /* Highlight box when editing */
+        .admin-box.edit-mode {
+            border-color: var(--secondary);
+        }
+
+        input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: #111;
+            color: white;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button:hover { opacity: 0.8; }
+        
+        .update-btn { background: var(--secondary); }
+        .cancel-btn { background: #666; }
+
+        .search-bar {
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 10px;
+            position: relative;
+            border-left: 4px solid var(--primary);
+        }
+
+        .card h3 { margin: 0 0 10px 0; color: var(--primary); }
+        .card p { margin: 5px 0; font-size: 0.9rem; color: #bbb; }
+        
+        .stock-tag {
+            background: #444;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .edit-btn {
+            background: transparent;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+            font-size: 0.7rem;
+        }
+
+        .delete-btn {
+            background: transparent;
+            color: #ff4444;
+            border: 1px solid #ff4444;
+            font-size: 0.7rem;
+        }
+
+        @media (max-width: 600px) {
+            .admin-box { grid-template-columns: 1fr; }
+            .product-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🚘 BC STOCK MANAGEMENT</h1>
+    </header>
+
+    <div class="admin-box" id="inputContainer">
+        <input type="hidden" id="editId">
+        <input type="text" id="pName" placeholder="Product Name">
+        <input type="text" id="pPrice" placeholder="Price">
+        <input type="number" id="pStock" placeholder="Stock">
+        <div id="btnContainer">
+            <button onclick="addProduct()">ADD</button>
+        </div>
+    </div>
+
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search accessories..." onkeyup="searchProducts()">
+
+    <div id="product-list" class="product-grid"></div>
+</div>
+
+<script>
+    let products = JSON.parse(localStorage.getItem('carInventory')) || [];
+    renderProducts();
+
+    function addProduct() {
+        const name = document.getElementById('pName').value;
+        const price = document.getElementById('pPrice').value;
+        const stock = document.getElementById('pStock').value;
+
+        if(!name || !price || !stock) return alert("Please fill all fields");
+
+        const newProduct = { id: Date.now(), name, price, stock };
+        products.push(newProduct);
+        saveAndRefresh();
+        clearInputs();
+    }
+
+    function editProduct(id) {
+        const item = products.find(p => p.id === id);
+        if(!item) return;
+
+        // Fill inputs with current data
+        document.getElementById('pName').value = item.name;
+        document.getElementById('pPrice').value = item.price;
+        document.getElementById('pStock').value = item.stock;
+        document.getElementById('editId').value = item.id;
+
+        // Change UI to Edit Mode
+        document.getElementById('inputContainer').classList.add('edit-mode');
+        document.getElementById('btnContainer').innerHTML = `
+            <button class="update-btn" onclick="updateProduct()">UPDATE</button>
+            <button class="cancel-btn" onclick="clearInputs()">CANCEL</button>
+        `;
+        
+        // Scroll to top to see the edit form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateProduct() {
+        const id = parseInt(document.getElementById('editId').value);
+        const name = document.getElementById('pName').value;
+        const price = document.getElementById('pPrice').value;
+        const stock = document.getElementById('pStock').value;
+
+        products = products.map(p => 
+            p.id === id ? { ...p, name, price, stock } : p
+        );
+
+        saveAndRefresh();
+        clearInputs();
+    }
+
+    function deleteProduct(id) {
+        if(confirm("Delete this item?")) {
+            products = products.filter(p => p.id !== id);
+            saveAndRefresh();
+        }
+    }
+
+    function searchProducts() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+        renderProducts(filtered);
+    }
+
+    function saveAndRefresh() {
+        localStorage.setItem('carInventory', JSON.stringify(products));
+        renderProducts();
+    }
+
+    function clearInputs() {
+        document.getElementById('pName').value = '';
+        document.getElementById('pPrice').value = '';
+        document.getElementById('pStock').value = '';
+        document.getElementById('editId').value = '';
+        document.getElementById('inputContainer').classList.remove('edit-mode');
+        document.getElementById('btnContainer').innerHTML = `<button onclick="addProduct()">ADD</button>`;
+    }
+
+    function renderProducts(items = products) {
+        const list = document.getElementById('product-list');
+        list.innerHTML = items.map(p => `
+            <div class="card">
+                <h3>${p.name}</h3>
+                <p>Price: <strong>${p.price}</strong></p>
+                <p>Status: <span class="stock-tag">${p.stock} in stock</span></p>
+                <div class="actions">
+                    <button class="edit-btn" onclick="editProduct(${p.id})">EDIT</button>
+                    <button class="delete-btn" onclick="deleteProduct(${p.id})">REMOVE</button>
+                </div>
+            </div>
+        `).join('');
+    }
+</script>
+
+</body>
+</html>

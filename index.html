@@ -193,68 +193,68 @@
     //     renderProducts(filtered);
     // }
 
-// YOUR GOOGLE SHEET LINK
-const sheetURL =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0lcRbh21NbUU4qb5TLUTjdJ-XPJcvlhQtoGiPdceXAJRaRakKPlenRxo4YLcXLc2UxuGxBOyEDGp/pub?gid=0&single=true&output=csv";
+        // YOUR GOOGLE SHEET LINK
+        const sheetURL =
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0lcRbh21NbUU4qb5TLUTjdJ-XPJcvlhQtoGiPdceXAJRaRakKPlenRxo4YLcXLc2UxuGxBOyEDGp/pub?gid=0&single=true&output=csv";
 
-let products = [];
-
-
-// Load from Google Sheet
-fetch(sheetURL)
-.then(response => response.text())
-.then(csv => {
-
-    const rows = csv.split("\n").slice(1);
-
-    products = rows.map(row => {
-
-        const cols = row.split(",");
-
-        return {
-            name: cols[0],
-            price: cols[1],
-            stock: cols[2]
-        };
-
-    });
-
-    renderProducts(products);
-
-});
+        let products = [];
 
 
-// Show products
-function renderProducts(items) {
+        // Load from Google Sheet
+        fetch(sheetURL)
+        .then(response => response.text())
+        .then(csv => {
 
-    document.getElementById("product-list").innerHTML =
-    items.map(p => `
-        <div class="card">
-            <h3>${p.name}</h3>
-            <div class="price">Price: ₹ ${p.price}</div>
-            <div class="stock">
-                ${p.stock > 0 ? "Stock: " + p.stock : "Out of Stock"}
-            </div>
-        </div>
-    `).join("");
+            const rows = csv.split("\n").slice(1);
 
-}
+            products = rows.map(row => {
+
+                const cols = row.split(",");
+
+                return {
+                    name: cols[0],
+                    price: cols[1],
+                    stock: cols[2]
+                };
+
+            });
+
+            renderProducts(products);
+
+        });
 
 
-// Search
-function searchProducts() {
+        // Show products
+        function renderProducts(items) {
 
-    const value =
-    document.getElementById("searchInput").value.toLowerCase();
+            document.getElementById("product-list").innerHTML =
+            items.map(p => `
+                <div class="card">
+                    <h3>${p.name}</h3>
+                    <div class="price">Price: ₹ ${p.price}</div>
+                    <div class="stock">
+                        ${p.stock > 0 ? "Stock: " + p.stock : "Out of Stock"}
+                    </div>
+                </div>
+            `).join("");
 
-    const filtered =
-    products.filter(p =>
-        p.name.toLowerCase().includes(value)
-    );
+        }
 
-    renderProducts(filtered);
 
-}
+        // Search
+        function searchProducts() {
+
+            const value =
+            document.getElementById("searchInput").value.toLowerCase();
+
+            const filtered =
+            products.filter(p =>
+                p.name.toLowerCase().includes(value)
+            );
+
+            renderProducts(filtered);
+
+        }
 
 
 </script>

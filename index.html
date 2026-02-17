@@ -12,12 +12,35 @@
             --text: #ffffff;
         }
 
+        .light-mode {
+            --primary: #e74c3c;
+            --bg: #f4f4f4;
+            --card: #ffffff;
+            --text: #111111;
+        }
+
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
             padding: 20px;
+        }
+
+        .theme-btn {
+            margin-top: 10px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .theme-btn:hover {
+            opacity: 0.9;
         }
 
         .container {
@@ -94,6 +117,7 @@
 <div class="container">
     <header>
         <h1>🚘 BC STOCK INVENTORY</h1>
+        <button id="themeToggle" onclick="toggleTheme()" class="theme-btn">🌙 Dark Mode</button>
     </header>
 
     <input type="text" id="searchInput" class="search-bar" placeholder="🔍 Search accessories..." onkeyup="searchProducts()">
@@ -186,6 +210,42 @@
         );
         renderProducts(filtered);
     }
+
+    // Load saved theme on startup
+        window.onload = function () {
+            const savedTheme = localStorage.getItem("theme");
+
+            if (savedTheme === "light") {
+                document.body.classList.add("light-mode");
+                document.getElementById("themeToggle").innerText = "☀️ Light Mode";
+            } else {
+                document.getElementById("themeToggle").innerText = "🌙 Dark Mode";
+            }
+
+            renderProducts(products);
+        };
+
+
+        // Toggle theme
+        function toggleTheme() {
+
+            document.body.classList.toggle("light-mode");
+
+            const button = document.getElementById("themeToggle");
+
+            if (document.body.classList.contains("light-mode")) {
+
+                localStorage.setItem("theme", "light");
+                button.innerText = "☀️ Light Mode";
+
+            } else {
+
+                localStorage.setItem("theme", "dark");
+                button.innerText = "🌙 Dark Mode";
+
+            }
+        }
+
 </script>
 
 </body>

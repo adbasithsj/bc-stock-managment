@@ -156,8 +156,8 @@
                 const cols = row.split(",");
                 return {
                     name: cols[0]?.trim() || "N/A",
-                    price: parseFloat(cols[1]) || 0,
-                    stock: parseInt(cols[2]) || 0
+                    stock: parseInt(cols[1]) || 0,
+                    price: parseFloat(cols[2]) || 0
                 };
             });
             filterAndRender();

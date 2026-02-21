@@ -40,7 +40,7 @@
         .controls {
             display: flex;
             gap: 10px;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
         }
 
@@ -71,10 +71,21 @@
         }
 
         .btn:hover { background: #334155; }
-        
-        /* Specific Active Colors */
         .btn.active-low { background: var(--warning); border-color: var(--warning); color: #000; }
         .btn.active-out { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+        /* Counter Display */
+        .view-stats {
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            padding-left: 5px;
+        }
+        #item-count {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1rem;
+        }
 
         /* Grid & Cards */
         .product-grid {
@@ -134,6 +145,10 @@
         </button>
     </div>
 
+    <div class="view-stats">
+        Current View: <span id="item-count">0</span> items
+    </div>
+
     <div id="product-list" class="product-grid"></div>
 </div>
 
@@ -143,7 +158,7 @@
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0lcRbh21NbUU4qb5TLUTjdJ-XPJcvlhQtoGiPdceXAJRaRakKPlenRxo4YLcXLc2UxuGxBOyEDGp/pub?gid=0&single=true&output=csv";
     
     let products = [];
-    let currentFilter = 'all'; // 'all', 'low', 'out'
+    let currentFilter = 'all'; 
     let sortDirection = 'none';
 
     async function loadData() {
@@ -159,16 +174,17 @@
                     stock: parseInt(cols[1]) || 0,
                     price: parseFloat(cols[2]) || 0
                 };
-            });
+            }).filter(p => p.name !== "N/A"); // Clean up empty rows
+            
             filterAndRender();
-        } catch (e) { console.error("Error loading data"); }
+        } catch (e) { 
+            console.error("Error loading data"); 
+        }
     }
 
     function toggleFilter(type) {
-        // Toggle off if clicking the same button, else switch to new filter
         currentFilter = (currentFilter === type) ? 'all' : type;
         
-        // Update UI states
         document.getElementById('lowStockBtn').classList.toggle('active-low', currentFilter === 'low');
         document.getElementById('outStockBtn').classList.toggle('active-out', currentFilter === 'out');
         
@@ -202,13 +218,16 @@
         if (sortDirection === 'asc') filtered.sort((a, b) => a.price - b.price);
         if (sortDirection === 'desc') filtered.sort((a, b) => b.price - a.price);
 
+        // Update the count display
+        document.getElementById('item-count').innerText = filtered.length;
+        
         render(filtered);
     }
 
     function render(items) {
         const list = document.getElementById("product-list");
         if(items.length === 0) {
-            list.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:var(--text-dim)">No items found for this view.</p>`;
+            list.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:var(--text-dim); margin-top: 40px;">No items found matching your criteria.</p>`;
             return;
         }
 
@@ -231,5 +250,6 @@
 
     loadData();
 </script>
+
 </body>
 </html>

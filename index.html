@@ -120,6 +120,24 @@
         .out-stock { background: rgba(255, 71, 87, 0.1); color: var(--danger); }
 
         footer { text-align: center; margin-top: 50px; color: var(--text-dim); padding-bottom: 30px; }
+@media (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+  }
+
+  .search-bar {
+    width: 100%;
+  }
+
+  .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .controls button {
+    width: 100%;
+  }
+        }
     </style>
 </head>
 <body>
@@ -282,4 +300,5 @@ function filterAndRender() {
 
 </body>
 </html>
+
 

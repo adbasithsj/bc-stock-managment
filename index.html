@@ -192,11 +192,20 @@
     }
 
     function toggleSort() {
-        if (sortDirection === 'none' || sortDirection === 'desc') sortDirection = 'asc';
-        else sortDirection = 'desc';
-        
-        const btn = document.getElementById('sortBtn');
-        btn.innerHTML = sortDirection === 'asc' ? '🔽 Price: L' : '🔼 Price: H';
+
+        if (sortDirection === 'none') {
+            sortDirection = 'asc';
+            document.getElementById('sortBtn').innerHTML = '🔽 Price: L';
+        }
+        else if (sortDirection === 'asc') {
+            sortDirection = 'desc';
+            document.getElementById('sortBtn').innerHTML = '🔼 Price: H';
+        }
+        else {
+            sortDirection = 'none';
+            document.getElementById('sortBtn').innerHTML = '↕️ Price';
+        }
+
         filterAndRender();
     }
 
@@ -222,9 +231,14 @@ function filterAndRender() {
         filtered = filtered.filter(p => p.stock <= 0);
     }
 
-    // Sorting
-    if (sortDirection === 'asc') filtered.sort((a, b) => a.price - b.price);
-    if (sortDirection === 'desc') filtered.sort((a, b) => b.price - a.price);
+        // Sorting
+        if (sortDirection === 'asc') {
+            filtered.sort((a, b) => a.price - b.price);
+        }
+        else if (sortDirection === 'desc') {
+            filtered.sort((a, b) => b.price - a.price);
+        }
+        // if 'none' → no sorting, keeps original order
 
     // Update the count display
     document.getElementById('item-count').innerText = filtered.length;

@@ -148,6 +148,9 @@
         <button id="sortBtn" class="btn" onclick="toggleSort()">
             ↕️ Price
         </button>
+        <button class="btn" onclick="refreshData()">
+            ⟳ Refresh
+        </button>
     </div>
 
     <div class="view-stats">
@@ -269,9 +272,24 @@ function filterAndRender() {
     }
 
     function getStockBadge(qty) {
-        if (qty > 5) return `<span class="badge in-stock">Stock: ${qty}</span>`;
-        if (qty > 0) return `<span class="badge low-stock">Low Stock: ${qty}</span>`;
-        return `<span class="badge out-stock">Out of Stock</span>`;
+            if (qty > 5) return `<span class="badge in-stock">Stock: ${qty}</span>`;
+            if (qty > 0) return `<span class="badge low-stock">Low Stock: ${qty}</span>`;
+            return `<span class="badge out-stock">Out of Stock</span>`;
+        }
+
+        async function refreshData() {
+
+        const list = document.getElementById("product-list");
+
+        // show loading message
+        list.innerHTML = `
+            <p style="grid-column:1/-1; text-align:center; color:var(--text-dim);">
+                ⟳ Refreshing data...
+            </p>
+        `;
+
+        // reload data from Google Sheet
+        await loadData();
     }
 
     loadData();

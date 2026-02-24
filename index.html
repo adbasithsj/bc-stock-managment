@@ -130,7 +130,12 @@
     </header>
 
     <div class="controls">
-        <input type="text" id="searchInput" class="search-bar" placeholder="Search inventory..." onkeyup="filterAndRender()">
+        <!-- <input type="text" id="searchInput" class="search-bar" placeholder="Search inventory..." onkeyup="filterAndRender()"> -->
+        <input type="search"
+       id="searchInput"
+       class="search-bar"
+       placeholder="Search inventory..."
+       oninput="filterAndRender()">
         
         <button id="lowStockBtn" class="btn" onclick="toggleFilter('low')">
             ⚠️ Low

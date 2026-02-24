@@ -201,28 +201,28 @@
     }
 
     // function filterAndRender() {
-        let filtered = [...products];
+    //     let filtered = [...products];
 
-        // 1. Search Filter
-        const search = document.getElementById("searchInput").value.toLowerCase();
-        if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+    //     // 1. Search Filter
+    //     const search = document.getElementById("searchInput").value.toLowerCase();
+    //     if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
 
-        // 2. Status Filters
-        if (currentFilter === 'low') {
-            filtered = filtered.filter(p => p.stock > 0 && p.stock <= 5);
-        } else if (currentFilter === 'out') {
-            filtered = filtered.filter(p => p.stock <= 0);
-        }
+    //     // 2. Status Filters
+    //     if (currentFilter === 'low') {
+    //         filtered = filtered.filter(p => p.stock > 0 && p.stock <= 5);
+    //     } else if (currentFilter === 'out') {
+    //         filtered = filtered.filter(p => p.stock <= 0);
+    //     }
 
-        // 3. Sorting
-        if (sortDirection === 'asc') filtered.sort((a, b) => a.price - b.price);
-        if (sortDirection === 'desc') filtered.sort((a, b) => b.price - a.price);
+    //     // 3. Sorting
+    //     if (sortDirection === 'asc') filtered.sort((a, b) => a.price - b.price);
+    //     if (sortDirection === 'desc') filtered.sort((a, b) => b.price - a.price);
 
-        // Update the count display
-        document.getElementById('item-count').innerText = filtered.length;
+    //     // Update the count display
+    //     document.getElementById('item-count').innerText = filtered.length;
         
-        render(filtered);
-    }
+    //     render(filtered);
+    // }
 function filterAndRender() {
     let filtered = [...products];
 

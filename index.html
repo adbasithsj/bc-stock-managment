@@ -46,7 +46,7 @@
 
         .search-bar {
             flex: 2;
-            min-width: 300px;
+            min-width: 250px;
             padding: 12px 18px;
             background: var(--card-bg);
             border: 1px solid #334155;
@@ -55,36 +55,25 @@
             font-size: 0.95rem;
         }
 
-        .btn {
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid #334155;
-            background: var(--card-bg);
-            color: var(--text-main);
-            cursor: pointer;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: 0.2s;
-            font-size: 0.85rem;
+        /* Cipher Input Styling */
+        .cipher-input {
+            flex: 1;
+            min-width: 150px;
+            border: 1px solid var(--primary) !important;
         }
-
-        .btn:hover { background: #334155; }
-        .btn.active-low { background: var(--warning); border-color: var(--warning); color: #000; }
-        .btn.active-out { background: var(--danger); border-color: var(--danger); color: #fff; }
 
         /* Counter Display */
         .view-stats {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 25px;
             font-size: 0.9rem;
             color: var(--text-dim);
-            padding-left: 5px;
+            padding: 0 5px;
         }
         #item-count {
             color: var(--primary);
             font-weight: 700;
-            font-size: 1rem;
         }
 
         /* Grid & Cards */
@@ -103,6 +92,21 @@
             flex-direction: column;
             justify-content: space-between;
             min-height: 110px;
+            position: relative;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
+
+        .secret-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            letter-spacing: 1.5px;
+            font-weight: 600;
         }
 
         .price-tag { font-size: 1.3rem; font-weight: 700; margin-bottom: 12px; }
@@ -120,11 +124,10 @@
         .out-stock { background: rgba(255, 71, 87, 0.1); color: var(--danger); }
 
         footer { text-align: center; margin-top: 50px; color: var(--text-dim); padding-bottom: 30px; }
-@media (max-width: 600px) {
-  .search-bar {
-    width: 100%;
-  }
-}
+
+        @media (max-width: 600px) {
+            .search-bar, .cipher-input { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -135,32 +138,23 @@
     </header>
 
     <div class="controls">
-        <!-- <input type="text" id="searchInput" class="search-bar" placeholder="Search inventory..." onkeyup="filterAndRender()"> -->
         <input type="search"
-       id="searchInput"
-       class="search-bar"
-       placeholder="Search inventory..."
-       oninput="filterAndRender()"
-       autofocus >
-        
-        <button id="lowStockBtn" class="btn" onclick="toggleFilter('low')">
-            ⚠️ Low
-        </button>
+               id="searchInput"
+               class="search-bar"
+               placeholder="Search inventory..."
+               oninput="filterAndRender()"
+               autofocus >
 
-        <button id="outStockBtn" class="btn" onclick="toggleFilter('out')">
-            🚫 Out
-        </button>
-
-        <button id="sortBtn" class="btn" onclick="toggleSort()">
-            ↕️ Price
-        </button>
-        <button class="btn" onclick="location.reload()" title="Reload page">
-            🔄 Refresh
-        </button>
+        <input type="number" 
+               id="cipherInput" 
+               class="search-bar cipher-input" 
+               placeholder="Quick Code Tool..." 
+               oninput="manualCipherConvert()">
     </div>
 
     <div class="view-stats">
-        Current View: <span id="item-count">0</span> items
+        <span>Current View: <span id="item-count">0</span> items</span>
+        <span id="manualCipherResult" style="color: var(--success); font-weight: bold;"></span>
     </div>
 
     <div id="product-list" class="product-grid"></div>
@@ -172,8 +166,23 @@
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTU0lcRbh21NbUU4qb5TLUTjdJ-XPJcvlhQtoGiPdceXAJRaRakKPlenRxo4YLcXLc2UxuGxBOyEDGp/pub?gid=0&single=true&output=csv";
     
     let products = [];
-    let currentFilter = 'all'; 
-    let sortDirection = 'none';
+    const cipherMap = {
+        '1': 'Q', '2': 'U', '3': 'I', '4': 'C', '5': 'K',
+        '6': 'B', '7': 'R', '8': 'O', '9': 'W', '0': 'N'
+    };
+
+    // Helper: Convert Number to Secret Code
+    function getSecretCode(num) {
+        if (!num) return "";
+        return num.toString().split('.')[0].split('').map(digit => cipherMap[digit] || digit).join('');
+    }
+
+    // Manual Tool Logic
+    function manualCipherConvert() {
+        const val = document.getElementById('cipherInput').value;
+        const res = document.getElementById('manualCipherResult');
+        res.innerText = val ? `CODE: ${getSecretCode(val)}` : "";
+    }
 
     async function loadData() {
         try {
@@ -188,7 +197,7 @@
                     stock: parseInt(cols[1]) || 0,
                     price: parseFloat(cols[2]) || 0
                 };
-            }).filter(p => p.name !== "N/A"); // Clean up empty rows
+            }).filter(p => p.name !== "N/A"); 
             
             filterAndRender();
         } catch (e) { 
@@ -196,69 +205,22 @@
         }
     }
 
-    function toggleFilter(type) {
-        currentFilter = (currentFilter === type) ? 'all' : type;
-        
-        document.getElementById('lowStockBtn').classList.toggle('active-low', currentFilter === 'low');
-        document.getElementById('outStockBtn').classList.toggle('active-out', currentFilter === 'out');
-        
-        filterAndRender();
+    function filterAndRender() {
+        let filtered = [...products];
+        const search = document.getElementById("searchInput").value.toLowerCase().trim();
+
+        if (search) {
+            const words = search.split(/\s+/);
+            filtered = filtered.filter(p => {
+                const name = p.name.toLowerCase();
+                return words.every(word => name.includes(word));
+            });
+        }
+
+        document.getElementById('item-count').innerText = filtered.length;
+        render(filtered);
     }
 
-    function toggleSort() {
-
-        if (sortDirection === 'none') {
-            sortDirection = 'asc';
-            document.getElementById('sortBtn').innerHTML = '🔽 Price: L';
-        }
-        else if (sortDirection === 'asc') {
-            sortDirection = 'desc';
-            document.getElementById('sortBtn').innerHTML = '🔼 Price: H';
-        }
-        else {
-            sortDirection = 'none';
-            document.getElementById('sortBtn').innerHTML = '↕️ Price';
-        }
-
-        filterAndRender();
-    }
-
-function filterAndRender() {
-    let filtered = [...products];
-
-    // Flexible Search Filter
-    const search = document.getElementById("searchInput").value.toLowerCase().trim();
-
-    if (search) {
-        const words = search.split(/\s+/);
-        
-        filtered = filtered.filter(p => {
-            const name = p.name.toLowerCase();
-            return words.every(word => name.includes(word));
-        });
-    }
-
-    // Status Filters
-    if (currentFilter === 'low') {
-        filtered = filtered.filter(p => p.stock > 0 && p.stock <= 5);
-    } else if (currentFilter === 'out') {
-        filtered = filtered.filter(p => p.stock <= 0);
-    }
-
-        // Sorting
-        if (sortDirection === 'asc') {
-            filtered.sort((a, b) => a.price - b.price);
-        }
-        else if (sortDirection === 'desc') {
-            filtered.sort((a, b) => b.price - a.price);
-        }
-        // if 'none' → no sorting, keeps original order
-
-    // Update the count display
-    document.getElementById('item-count').innerText = filtered.length;
-    
-    render(filtered);
-}
     function render(items) {
         const list = document.getElementById("product-list");
         if(items.length === 0) {
@@ -269,7 +231,10 @@ function filterAndRender() {
         list.innerHTML = items.map(p => `
             <div class="card">
                 <div>
-                    <h3 style="margin:0 0 5px 0; font-size:1rem;">${p.name}</h3>
+                    <div class="card-header">
+                        <h3 style="margin:0; font-size:1rem;">${p.name}</h3>
+                        <span class="secret-label">${getSecretCode(p.price)}</span>
+                    </div>
                     <div class="price-tag"><span>₹</span>${p.price.toLocaleString()}</div>
                 </div>
                 <div>${getStockBadge(p.stock)}</div>
@@ -288,7 +253,3 @@ function filterAndRender() {
 
 </body>
 </html>
-
-
-
-

@@ -231,10 +231,10 @@
         list.innerHTML = items.map(p => `
             <div class="card">
                 <div>
-                    <div class="card-header">
-                        <h3 style="margin:0; font-size:1rem;">${p.name}</h3>
-                        <span class="secret-label">${getSecretCode(p.price)}</span>
-                    </div>
+                    // <div class="card-header">
+                    //     <h3 style="margin:0; font-size:1rem;">${p.name}</h3>
+                    //     <span class="secret-label">${getSecretCode(p.price)}</span>
+                    // </div>
                     <div class="price-tag"><span>₹</span>${p.price.toLocaleString()}</div>
                 </div>
                 <div>${getStockBadge(p.stock)}</div>
